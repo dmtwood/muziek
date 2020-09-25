@@ -1,6 +1,8 @@
 package be.vdab.muziek.domain;
 
 import javax.persistence.*;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -10,7 +12,7 @@ public class Artiest {
     private long id;
     private String naam;
 
-    @OneToMany
+    @OneToMany ( mappedBy = "tracks")
     private Set<Album> albumSet;
 
     protected Artiest() {
@@ -27,5 +29,9 @@ public class Artiest {
 
     public String getNaam() {
         return naam;
+    }
+
+    public Set<Album> getAlbumSet() {
+        return Collections.unmodifiableSet(albumSet);
     }
 }
