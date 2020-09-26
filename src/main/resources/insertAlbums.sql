@@ -1,0 +1,1 @@
+insert into albums(artiestid, naam) VALUES (1,'test')
