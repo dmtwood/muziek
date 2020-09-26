@@ -1,18 +1,20 @@
 package be.vdab.muziek.controllers;
 
 import be.vdab.muziek.domain.Album;
+import be.vdab.muziek.domain.Track;
 import be.vdab.muziek.dto.AlbumArtiest;
 import be.vdab.muziek.exceptions.AlbumNietGevondenException;
 import be.vdab.muziek.services.AlbumService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.hateoas.server.ExposesResourceFor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.parser.Entity;
+import java.util.Set;
 
+// for handling requests with a Response Body (JSON/XML)
 @RestController
 @RequestMapping("albums")
 @ExposesResourceFor(Album.class)
@@ -26,15 +28,39 @@ class AlbumController {
     }
 
     @GetMapping("{id}")
-    EntityModel<AlbumArtiest> getAlbum(long id) {
+    EntityModel<AlbumArtiest> getAlbum(@PathVariable long id) {
+
         var optionalAlbum = albumService.findById(id);
+
         if( optionalAlbum.isPresent() ) {
-            var album = optionalAlbum.get();
-            var albumArtiest = new AlbumArtiest(album);
-            var model = new EntityModel<>(albumArtiest);
-            model.add(entityLinks.linkToItemResource(Album.class, id));
-            model.add(entityLinks.linkForItemResource(Album.class, id).slash("tracks").withRel("tracks"));
+
+//            var album = optionalAlbum.get();
+            var albumArtiest = new AlbumArtiest( optionalAlbum.get() );
+            var entityModel = EntityModel.of(albumArtiest); // new EntityModel<>(albumArtiest);
+
+            entityModel.add(
+                    entityLinks.linkToItemResource(Album.class, id)
+            );
+            entityModel.add(
+                    entityLinks.linkForItemResource(Album.class, id)
+                    .slash("tracks")
+                    .withRel("tracks")
+            );
+            return entityModel;
         }
         throw new AlbumNietGevondenException();
+    }
+
+    @GetMapping("{id}/tracks")
+    Set<Track> getTracks(@PathVariable long id){
+        var optionalAlbum = albumService.findById(id);
+        if ( optionalAlbum.isPresent() ) {
+            return optionalAlbum.get().getTracks();
+        }
+        throw new AlbumNietGevondenException();
+    }
+    @ExceptionHandler(AlbumNietGevondenException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    void albumNietGevonden(){
     }
 }

@@ -6,14 +6,12 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Entity @Table( name = "artiest")
+@Entity @Table( name = "artiesten")
 public class Artiest {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private String naam;
 
-    @OneToMany ( mappedBy = "tracks")
-    private Set<Album> albumSet;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private long id;
+    private String naam;
+    @OneToMany ( mappedBy = "artiest") private Set<Album> albumSet;
 
     protected Artiest() {
     }
